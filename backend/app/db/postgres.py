@@ -7,7 +7,7 @@ from app.config import settings
 # ---------------- DATABASE CONNECTION ----------------
 def get_connection():
     """
-    Connect to Postgres using the DATABASE_URL from Render
+    Connect to Postgres using DATABASE_URL from Render or local .env
     """
     if not hasattr(settings, "DATABASE_URL") or not settings.DATABASE_URL:
         raise ValueError("DATABASE_URL is not set in settings")
