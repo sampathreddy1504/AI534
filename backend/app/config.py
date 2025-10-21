@@ -12,20 +12,13 @@ class Settings(BaseSettings):
     GEMINI_MODEL: str = Field("gemini-2.5-flash", env="GEMINI_MODEL")
 
     # ====== Postgres ======
-    POSTGRES_USER: str = Field("postgres", env="POSTGRES_USER")
-    POSTGRES_PASSWORD: str = Field("postgres", env="POSTGRES_PASSWORD")
-    POSTGRES_DB: str = Field("personal_ai", env="POSTGRES_DB")
-    POSTGRES_HOST: str = Field("db", env="POSTGRES_HOST")
-    POSTGRES_PORT: int = Field(5432, env="POSTGRES_PORT")
+    DATABASE_URL: str = Field(..., env="DATABASE_URL")  # Use Render Postgres URL
 
     # ====== Redis ======
-    # Main Redis connection (some services use this default variable)
     REDIS_URL: Optional[str] = Field("redis://redis:6379/0", env="REDIS_URL")
-
-    # Specific Redis URLs for subsystems
-    REDIS_URL_CELERY: str = Field("redis://redis:6379/0", env="REDIS_URL_CELERY")  # For Celery
-    REDIS_URL_CHAT: str = Field("redis://redis:6379/1", env="REDIS_URL_CHAT")      # For chat history
-    REDIS_CHAT_HISTORY_KEY: str = Field("chat_history", env="REDIS_CHAT_HISTORY_KEY")  # last 10 messages
+    REDIS_URL_CELERY: str = Field("redis://redis:6379/0", env="REDIS_URL_CELERY")
+    REDIS_URL_CHAT: str = Field("redis://redis:6379/1", env="REDIS_URL_CHAT")
+    REDIS_CHAT_HISTORY_KEY: str = Field("chat_history", env="REDIS_CHAT_HISTORY_KEY")
 
     # ====== Neo4j ======
     NEO4J_URI: str = Field("bolt://neo4j:7687", env="NEO4J_URI")
@@ -55,7 +48,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
-        extra = "ignore"  # 👈 Ignores unexpected env vars like redis_url
+        extra = "ignore"  # ignores unexpected env vars
 
 
 # Instantiate settings
