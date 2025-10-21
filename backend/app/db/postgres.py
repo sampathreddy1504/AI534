@@ -1,4 +1,4 @@
-# backend/app/postgres.py
+# backend/app/db/postgres.py
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from urllib.parse import urlparse
@@ -7,16 +7,13 @@ from app.config import settings
 # ---------------- DATABASE CONNECTION ----------------
 def get_connection():
     """
-    Connect to Postgres using DATABASE_URL from Render or local .env
+    Connect to Postgres using only DATABASE_URL from environment.
     """
-    if not hasattr(settings, "DATABASE_URL") or not settings.DATABASE_URL:
-        raise ValueError("DATABASE_URL is not set in settings")
-
-    # Parse URL
     result = urlparse(settings.DATABASE_URL)
+
     username = result.username
     password = result.password
-    database = result.path[1:]  # skip the leading '/'
+    database = result.path[1:]  # skip leading '/'
     hostname = result.hostname
     port = result.port
 
@@ -104,14 +101,12 @@ def save_chat(user_query: str, ai_response: str):
 
 def get_chat_history(limit: int = 10):
     conn = get_connection()
-    try:
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT user_query, ai_response FROM chat_history ORDER BY created_at DESC LIMIT %s;",
-            (limit,)
-        )
-        rows = cur.fetchall()
-        return rows
-    finally:
-        cur.close()
-        conn.close()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT user_query, ai_response FROM chat_history ORDER BY created_at DESC LIMIT %s;",
+        (limit,)
+    )
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return rows
