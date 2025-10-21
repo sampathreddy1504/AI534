@@ -1,16 +1,32 @@
+# backend/app/postgres.py
 import psycopg2
-from psycopg2.extras import RealDictCursor  # ✅ fetch as dict
+from psycopg2.extras import RealDictCursor
+from urllib.parse import urlparse
 from app.config import settings
 
 # ---------------- DATABASE CONNECTION ----------------
 def get_connection():
+    """
+    Connect to Postgres using the DATABASE_URL from Render
+    """
+    if not hasattr(settings, "DATABASE_URL") or not settings.DATABASE_URL:
+        raise ValueError("DATABASE_URL is not set in settings")
+
+    # Parse URL
+    result = urlparse(settings.DATABASE_URL)
+    username = result.username
+    password = result.password
+    database = result.path[1:]  # skip the leading '/'
+    hostname = result.hostname
+    port = result.port
+
     return psycopg2.connect(
-        dbname=settings.POSTGRES_DB,
-        user=settings.POSTGRES_USER,
-        password=settings.POSTGRES_PASSWORD,
-        host=settings.POSTGRES_HOST,
-        port=settings.POSTGRES_PORT,
-        cursor_factory=RealDictCursor  # ✅ ensures fetch returns dicts
+        dbname=database,
+        user=username,
+        password=password,
+        host=hostname,
+        port=port,
+        cursor_factory=RealDictCursor
     )
 
 # ---------------- TABLE SETUP ----------------
@@ -87,11 +103,6 @@ def save_chat(user_query: str, ai_response: str):
     print(f"💬 Chat saved: {user_query[:40]}...")
 
 def get_chat_history(limit: int = 10):
-    """
-    Fetch last N chats from PostgreSQL chat_history table.
-    Returns list of dicts: [{"user_query": ..., "ai_response": ...}, ...]
-    ✅ Keeps the limit intact
-    """
     conn = get_connection()
     try:
         cur = conn.cursor()
