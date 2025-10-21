@@ -1,18 +1,16 @@
 # backend/app/config.py
-
 from pydantic_settings import BaseSettings
 from pydantic import Field
 from typing import Optional
 
-
 class Settings(BaseSettings):
     # ====== AI Keys ======
-    GEMINI_API_KEYS: str = Field(..., env="GEMINI_API_KEYS")  # Comma-separated
+    GEMINI_API_KEYS: str = Field(..., env="GEMINI_API_KEYS")
     COHERE_API_KEY: Optional[str] = Field(None, env="COHERE_API_KEY")
     GEMINI_MODEL: str = Field("gemini-2.5-flash", env="GEMINI_MODEL")
 
     # ====== Postgres ======
-    DATABASE_URL: str = Field(..., env="DATABASE_URL")  # Use Render Postgres URL
+    DATABASE_URL: str = Field(..., env="DATABASE_URL")  # full connection string from Render
 
     # ====== Redis ======
     REDIS_URL: Optional[str] = Field("redis://redis:6379/0", env="REDIS_URL")
@@ -25,7 +23,7 @@ class Settings(BaseSettings):
     NEO4J_USER: str = Field("neo4j", env="NEO4J_USER")
     NEO4J_PASSWORD: str = Field(..., env="NEO4J_PASSWORD")
 
-    # ====== Email Settings ======
+    # ====== Email ======
     EMAIL_USER: Optional[str] = Field(None, env="EMAIL_USER")
     EMAIL_PASS: Optional[str] = Field(None, env="EMAIL_PASS")
 
@@ -43,13 +41,11 @@ class Settings(BaseSettings):
     # ====== Auth/JWT ======
     JWT_SECRET_KEY: str = Field("change_me_in_env", env="JWT_SECRET_KEY")
     JWT_ALGORITHM: str = Field("HS256", env="JWT_ALGORITHM")
-    JWT_EXPIRES_MINUTES: int = Field(60 * 24 * 7, env="JWT_EXPIRES_MINUTES")  # default 7 days
+    JWT_EXPIRES_MINUTES: int = Field(60 * 24 * 7, env="JWT_EXPIRES_MINUTES")
 
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
-        extra = "ignore"  # ignores unexpected env vars
+        extra = "ignore"  # ignore unexpected env vars
 
-
-# Instantiate settings
 settings = Settings()
